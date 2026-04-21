@@ -24,6 +24,6 @@
 
 ## Phase 4: Finalisierung
 - [x] Alle Features testen (14 Tests bestanden)
-- [ ] Checkpoint erstellen
-- [ ] Auf GitHub pushen
-- [ ] Ergebnis an Benutzer liefern
+- [x] Checkpoint erstellen (Version: 5796b832)
+- [x] Auf GitHub pushen (Repository erstellt: heikki-sponsoring-management)
+- [x] Ergebnis an Benutzer liefern (Website bereit zum Veröffentlichen)
