@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertUser, users, InsertSponsor, sponsors } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -89,4 +89,41 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+/**
+ * Sponsoren-Abfragen
+ */
+export async function getSponsorById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(sponsors).where(eq(sponsors.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getAllSponsors() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(sponsors).orderBy(sponsors.createdAt);
+}
+
+export async function createSponsor(data: InsertSponsor) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(sponsors).values(data);
+  const id = result[0]?.insertId;
+  if (!id) throw new Error("Failed to create sponsor");
+  return getSponsorById(id);
+}
+
+export async function updateSponsor(id: number, data: Partial<InsertSponsor>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(sponsors).set(data).where(eq(sponsors.id, id));
+  return getSponsorById(id);
+}
+
+export async function deleteSponsor(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(sponsors).where(eq(sponsors.id, id));
+  return true;
+}

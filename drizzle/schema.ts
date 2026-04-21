@@ -25,4 +25,28 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-// TODO: Add your tables here
+/**
+ * Sponsoren-Tabelle für die Verwaltung von Sponsoring-Kontakten
+ */
+export const sponsors = mysqlTable("sponsors", {
+  id: int("id").autoincrement().primaryKey(),
+  companyName: varchar("companyName", { length: 255 }).notNull(),
+  contactPerson: varchar("contactPerson", { length: 255 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  notes: text("notes"),
+  status: mysqlEnum("status", [
+    "Noch nicht kontaktiert",
+    "E-Mail in Vorbereitung",
+    "E-Mail gesendet",
+    "Antwort erhalten",
+    "Absage",
+    "Zusage/Partner"
+  ]).default("Noch nicht kontaktiert").notNull(),
+  emailSentDate: timestamp("emailSentDate"),
+  responseDate: timestamp("responseDate"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Sponsor = typeof sponsors.$inferSelect;
+export type InsertSponsor = typeof sponsors.$inferInsert;
