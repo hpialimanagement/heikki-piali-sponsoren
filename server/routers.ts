@@ -6,7 +6,7 @@ import { z } from "zod";
 import { createSponsor, updateSponsor, deleteSponsor, getAllSponsors, getSponsorById } from "./db";
 import { TRPCError } from "@trpc/server";
 
-const MASTER_PASSWORD = "Management67";
+const MASTER_PASSWORD = "Management";
 
 // Middleware to check password authentication
 const authenticatedProcedure = publicProcedure.use(({ ctx, next }) => {

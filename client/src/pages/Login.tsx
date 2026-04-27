@@ -16,11 +16,14 @@ export default function Login() {
     setError("");
     
     try {
-      await loginMutation.mutateAsync({ password });
+      console.log('Attempting login with password:', password);
+      const result = await loginMutation.mutateAsync({ password });
+      console.log('Login result:', result);
       // Reload the page to refresh auth state
       window.location.reload();
     } catch (err: any) {
-      setError(err.message || "Falsches Passwort");
+      console.error('Login error:', err);
+      setError(err?.message || err?.toString() || "Falsches Passwort");
     }
   };
 

@@ -1,6 +1,5 @@
 import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
 import type { User } from "../../drizzle/schema";
-import { sdk } from "./sdk";
 
 export type TrpcContext = {
   req: CreateExpressContextOptions["req"];
@@ -11,14 +10,10 @@ export type TrpcContext = {
 export async function createContext(
   opts: CreateExpressContextOptions
 ): Promise<TrpcContext> {
-  let user: User | null = null;
-
-  try {
-    user = await sdk.authenticateRequest(opts.req);
-  } catch (error) {
-    // Authentication is optional for public procedures.
-    user = null;
-  }
+  // For password-based authentication, we don't use OAuth
+  // The user object is null by default, and authentication is handled
+  // through the cookie-based password system in routers.ts
+  const user: User | null = null;
 
   return {
     req: opts.req,

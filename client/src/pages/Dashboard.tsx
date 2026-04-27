@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
+import { usePolling } from "@/hooks/usePolling";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -38,7 +39,32 @@ export default function Dashboard() {
   const [editingSponsor, setEditingSponsor] = useState<Sponsor | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const { data: sponsors = [], isLoading, refetch } = trpc.sponsors.list.useQuery();
+  const { data: sponsors = [], isLoading, refetch } = trpc.sponsors.list.useQuery(undefined, {
+    // Disable automatic refetching - we'll use polling instead
+    staleTime: Infinity,
+    gcTime: Infinity,
+  });
+
+  // Polling alle 5 Minuten mit Change-Detection
+  usePolling(async () => {
+    // Rufe die API direkt auf um neue Daten zu bekommen
+    const response = await fetch('/api/trpc/sponsors.list', {
+      method: 'GET',
+      credentials: 'include',
+    });
+    const data = await response.json();
+    const newSponsors = data.result?.data?.json || [];
+    
+    // Vergleiche mit aktuellen Daten
+    const dataChanged = JSON.stringify(sponsors) !== JSON.stringify(newSponsors);
+    
+    if (dataChanged) {
+      console.log('Sponsoren-Daten haben sich geändert - aktualisiere...');
+      refetch();
+    }
+    
+    return newSponsors;
+  }, 5 * 60 * 1000); // 5 Minuten
   const deleteMutation = trpc.sponsors.delete.useMutation({
     onSuccess: () => refetch(),
   });
