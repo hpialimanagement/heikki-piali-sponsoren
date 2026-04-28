@@ -1,5 +1,3 @@
-// We need to dynamically import the ESM build
-import('../dist/index.js').catch(console.error);
 
 // Minimal Express handler for Vercel
 const express = require('express');
