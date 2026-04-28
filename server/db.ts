@@ -18,26 +18,34 @@ export async function getDb() {
   return _db;
 }
 
+// ============================================================
+// In-Memory Fallback (used when no DATABASE_URL is set)
+// Data persists during runtime but resets on server restart
+// ============================================================
+let inMemorySponsors: any[] = [];
+let nextSponsorId = 1;
+let inMemoryUsers: any[] = [];
+
 export async function upsertUser(user: InsertUser): Promise<void> {
   if (!user.openId) {
     throw new Error("User openId is required for upsert");
   }
-
   const db = await getDb();
   if (!db) {
-    console.warn("[Database] Cannot upsert user: database not available");
+    const idx = inMemoryUsers.findIndex(u => u.openId === user.openId);
+    const userData = { ...user, lastSignedIn: user.lastSignedIn || new Date() };
+    if (idx >= 0) {
+      inMemoryUsers[idx] = { ...inMemoryUsers[idx], ...userData };
+    } else {
+      inMemoryUsers.push(userData);
+    }
     return;
   }
-
   try {
-    const values: InsertUser = {
-      openId: user.openId,
-    };
+    const values: InsertUser = { openId: user.openId };
     const updateSet: Record<string, unknown> = {};
-
     const textFields = ["name", "email", "loginMethod"] as const;
     type TextField = (typeof textFields)[number];
-
     const assignNullable = (field: TextField) => {
       const value = user[field];
       if (value === undefined) return;
@@ -45,9 +53,7 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       values[field] = normalized;
       updateSet[field] = normalized;
     };
-
     textFields.forEach(assignNullable);
-
     if (user.lastSignedIn !== undefined) {
       values.lastSignedIn = user.lastSignedIn;
       updateSet.lastSignedIn = user.lastSignedIn;
@@ -59,18 +65,9 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       values.role = 'admin';
       updateSet.role = 'admin';
     }
-
-    if (!values.lastSignedIn) {
-      values.lastSignedIn = new Date();
-    }
-
-    if (Object.keys(updateSet).length === 0) {
-      updateSet.lastSignedIn = new Date();
-    }
-
-    await db.insert(users).values(values).onDuplicateKeyUpdate({
-      set: updateSet,
-    });
+    if (!values.lastSignedIn) values.lastSignedIn = new Date();
+    if (Object.keys(updateSet).length === 0) updateSet.lastSignedIn = new Date();
+    await db.insert(users).values(values).onDuplicateKeyUpdate({ set: updateSet });
   } catch (error) {
     console.error("[Database] Failed to upsert user:", error);
     throw error;
@@ -80,34 +77,43 @@ export async function upsertUser(user: InsertUser): Promise<void> {
 export async function getUserByOpenId(openId: string) {
   const db = await getDb();
   if (!db) {
-    console.warn("[Database] Cannot get user: database not available");
-    return undefined;
+    return inMemoryUsers.find(u => u.openId === openId);
   }
-
   const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
-
   return result.length > 0 ? result[0] : undefined;
 }
 
-/**
- * Sponsoren-Abfragen
- */
 export async function getSponsorById(id: number) {
   const db = await getDb();
-  if (!db) return undefined;
+  if (!db) {
+    return inMemorySponsors.find(s => s.id === id);
+  }
   const result = await db.select().from(sponsors).where(eq(sponsors.id, id)).limit(1);
   return result.length > 0 ? result[0] : undefined;
 }
 
 export async function getAllSponsors() {
   const db = await getDb();
-  if (!db) return [];
+  if (!db) {
+    return [...inMemorySponsors].sort((a, b) =>
+      new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    );
+  }
   return await db.select().from(sponsors).orderBy(sponsors.createdAt);
 }
 
 export async function createSponsor(data: InsertSponsor) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
+  if (!db) {
+    const newSponsor = {
+      id: nextSponsorId++,
+      ...data,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    inMemorySponsors.push(newSponsor);
+    return newSponsor;
+  }
   const result = await db.insert(sponsors).values(data);
   const id = result[0]?.insertId;
   if (!id) throw new Error("Failed to create sponsor");
@@ -116,14 +122,22 @@ export async function createSponsor(data: InsertSponsor) {
 
 export async function updateSponsor(id: number, data: Partial<InsertSponsor>) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
+  if (!db) {
+    const idx = inMemorySponsors.findIndex(s => s.id === id);
+    if (idx < 0) throw new Error("Sponsor not found");
+    inMemorySponsors[idx] = { ...inMemorySponsors[idx], ...data, updatedAt: new Date() };
+    return inMemorySponsors[idx];
+  }
   await db.update(sponsors).set(data).where(eq(sponsors.id, id));
   return getSponsorById(id);
 }
 
 export async function deleteSponsor(id: number) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
+  if (!db) {
+    inMemorySponsors = inMemorySponsors.filter(s => s.id !== id);
+    return true;
+  }
   await db.delete(sponsors).where(eq(sponsors.id, id));
   return true;
 }
