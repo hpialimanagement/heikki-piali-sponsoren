@@ -8,18 +8,6 @@ import { TRPCError } from "@trpc/server";
 
 const MASTER_PASSWORD = "Management";
 
-// Middleware to check password authentication
-const authenticatedProcedure = publicProcedure.use(({ ctx, next }) => {
-  const isAuthenticated = ctx.req.cookies?.[COOKIE_NAME] === "authenticated";
-  if (!isAuthenticated) {
-    throw new TRPCError({
-      code: "UNAUTHORIZED",
-      message: "Authentifizierung erforderlich",
-    });
-  }
-  return next({ ctx });
-});
-
 export const appRouter = router({
   system: systemRouter,
   
@@ -34,8 +22,7 @@ export const appRouter = router({
           });
         }
         const cookieOptions = getSessionCookieOptions(ctx.req);
-        // Session für 10 Jahre gültig (praktisch unbegrenzt)
-        const tenYearsInSeconds = 10 * 365 * 24 * 60 * 60; // ~315,360,000 Sekunden
+        const tenYearsInSeconds = 10 * 365 * 24 * 60 * 60;
         ctx.res.setHeader("Set-Cookie", [
           `${COOKIE_NAME}=authenticated; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=${tenYearsInSeconds}`,
         ]);
@@ -49,23 +36,23 @@ export const appRouter = router({
     }),
     
     me: publicProcedure.query(({ ctx }) => {
-      const isAuthenticated = ctx.req.cookies?.[COOKIE_NAME] === "authenticated";
-      return { isAuthenticated };
+      // Always return authenticated for public access
+      return { isAuthenticated: true };
     }),
   }),
 
   sponsors: router({
-    list: authenticatedProcedure.query(async () => {
+    list: publicProcedure.query(async () => {
       return await getAllSponsors();
     }),
     
-    get: authenticatedProcedure
+    get: publicProcedure
       .input(z.object({ id: z.number() }))
       .query(async ({ input }) => {
         return await getSponsorById(input.id);
       }),
     
-    create: authenticatedProcedure
+    create: publicProcedure
       .input(z.object({
         companyName: z.string().min(1),
         contactPerson: z.string().min(1),
@@ -84,7 +71,7 @@ export const appRouter = router({
         return await createSponsor(input);
       }),
     
-    update: authenticatedProcedure
+    update: publicProcedure
       .input(z.object({
         id: z.number(),
         companyName: z.string().min(1).optional(),
@@ -107,7 +94,7 @@ export const appRouter = router({
         return await updateSponsor(id, data);
       }),
     
-    delete: authenticatedProcedure
+    delete: publicProcedure
       .input(z.object({ id: z.number() }))
       .mutation(async ({ input }) => {
         return await deleteSponsor(input.id);
