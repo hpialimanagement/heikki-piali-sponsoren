@@ -34,8 +34,10 @@ export const appRouter = router({
           });
         }
         const cookieOptions = getSessionCookieOptions(ctx.req);
+        // Session für 10 Jahre gültig (praktisch unbegrenzt)
+        const tenYearsInSeconds = 10 * 365 * 24 * 60 * 60; // ~315,360,000 Sekunden
         ctx.res.setHeader("Set-Cookie", [
-          `${COOKIE_NAME}=authenticated; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=86400`,
+          `${COOKIE_NAME}=authenticated; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=${tenYearsInSeconds}`,
         ]);
         return { success: true };
       }),
