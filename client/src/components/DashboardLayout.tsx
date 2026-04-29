@@ -1,11 +1,5 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
@@ -18,16 +12,16 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
-
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Users } from "lucide-react";
+import { LayoutDashboard, Users, Settings, PanelLeft } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
-
+import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/" },
-  { icon: Users, label: "Sponsoren", path: "/" },
+  { icon: Users, label: "Sponsoren", path: "/sponsoren" },
+  { icon: Settings, label: "Management", path: "/management" },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
@@ -44,10 +38,15 @@ export default function DashboardLayout({
     const saved = localStorage.getItem(SIDEBAR_WIDTH_KEY);
     return saved ? parseInt(saved, 10) : DEFAULT_WIDTH;
   });
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     localStorage.setItem(SIDEBAR_WIDTH_KEY, sidebarWidth.toString());
   }, [sidebarWidth]);
+
+  if (loading) {
+    return <DashboardLayoutSkeleton />
+  }
 
   return (
     <SidebarProvider
@@ -137,7 +136,7 @@ function DashboardLayoutContent({
               {!isCollapsed ? (
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="font-semibold tracking-tight truncate">
-                    Navigation
+                    Heikki Piali
                   </span>
                 </div>
               ) : null}
@@ -168,34 +167,21 @@ function DashboardLayoutContent({
           </SidebarContent>
 
           <SidebarFooter className="p-3">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-3 rounded-lg px-1 py-1 hover:bg-accent/50 transition-colors w-full text-left group-data-[collapsible=icon]:justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                  <Avatar className="h-9 w-9 border shrink-0">
-                    <AvatarFallback className="text-xs font-medium">
-                      M
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0 group-data-[collapsible=icon]:hidden">
-                    <p className="text-sm font-medium truncate leading-none">
-                      Management
-                    </p>
-                    <p className="text-xs text-muted-foreground truncate mt-1.5">
-                      Sponsoring
-                    </p>
-                  </div>
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem
-                  className="cursor-pointer text-destructive focus:text-destructive"
-                  disabled
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Kein Login erforderlich</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <div className="flex items-center gap-3 rounded-lg px-1 py-1 w-full text-left">
+              <Avatar className="h-9 w-9 border shrink-0">
+                <AvatarFallback className="text-xs font-medium">
+                  HP
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0 group-data-[collapsible=icon]:hidden">
+                <p className="text-sm font-medium truncate leading-none">
+                  Heikki Piali
+                </p>
+                <p className="text-xs text-muted-foreground truncate mt-1.5">
+                  Sponsoring
+                </p>
+              </div>
+            </div>
           </SidebarFooter>
         </Sidebar>
         <div

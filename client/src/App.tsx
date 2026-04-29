@@ -1,36 +1,38 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
+import ErrorBoundary from "./components/ErrorBoundary";
+import { ThemeProvider } from "./contexts/ThemeContext";
 import Dashboard from "./pages/Dashboard";
+import DashboardLayout from "./components/DashboardLayout";
 
 function Router() {
   return (
-    <Switch>
-      <Route path="/" component={Dashboard} />
-      <Route path="/sponsoren" component={Dashboard} />
-      <Route component={Dashboard} />
-    </Switch>
+    <DashboardLayout>
+      <Switch>
+        <Route path={"/"} component={Dashboard} />
+        <Route path={"/sponsoren"} component={Dashboard} />
+        <Route path={"/management"} component={Dashboard} />
+        <Route path={"/404"} component={NotFound} />
+        {/* Final fallback route */}
+        <Route component={NotFound} />
+      </Switch>
+    </DashboardLayout>
   );
 }
 
 function App() {
   return (
-    <ThemeProvider defaultTheme="light">
-      <TooltipProvider>
-        <Toaster />
-        <div className="min-h-screen bg-background">
-          <main className="container mx-auto py-8 px-4">
-            <Router />
-          </main>
-        </div>
-      </TooltipProvider>
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider defaultTheme="light">
+        <TooltipProvider>
+          <Toaster />
+          <Router />
+        </TooltipProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
-}
-
-// Minimal ThemeProvider for static version
-function ThemeProvider({ children }: { children: React.ReactNode, defaultTheme?: string }) {
-  return <>{children}</>;
 }
 
 export default App;

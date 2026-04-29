@@ -1,4 +1,5 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
+import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Edit2, Save } from "lucide-react";
+import { Plus, Trash2, Edit2 } from "lucide-react";
 import { SponsorDialog } from "@/components/SponsorDialog";
 import { Sponsor } from "@shared/types";
 
@@ -32,30 +33,15 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function Dashboard() {
-  const [sponsors, setSponsors] = useState<Sponsor[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [editingSponsor, setEditingSponsor] = useState<Sponsor | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  // Lade Daten aus der JSON-Datei im Repo
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch('https://raw.githubusercontent.com/hpialimanagement/heikki-piali-sponsoren/main/data/sponsors.json');
-        if (response.ok) {
-          const data = await response.json();
-          setSponsors(data);
-        }
-      } catch (error) {
-        console.error("Fehler beim Laden der Sponsoren:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+  const { data: sponsors = [], isLoading, refetch } = trpc.sponsors.list.useQuery();
+  const deleteMutation = trpc.sponsors.delete.useMutation({
+    onSuccess: () => refetch(),
+  });
 
   // Filter sponsors
   const filteredSponsors = useMemo(() => {
@@ -87,9 +73,9 @@ export default function Dashboard() {
     };
   }, [sponsors]);
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: number) => {
     if (confirm("Sind Sie sicher, dass Sie diesen Sponsor löschen möchten?")) {
-      setSponsors(prev => prev.filter(s => s.id !== id));
+      await deleteMutation.mutateAsync({ id });
     }
   };
 
@@ -103,21 +89,10 @@ export default function Dashboard() {
     setIsDialogOpen(true);
   };
 
-  const handleSaveSponsor = (data: any) => {
-    if (editingSponsor) {
-      setSponsors(prev => prev.map(s => s.id === editingSponsor.id ? { ...s, ...data, updatedAt: new Date().toISOString() } : s));
-    } else {
-      const nextId = sponsors.length > 0 ? Math.max(...sponsors.map(s => s.id)) + 1 : 1;
-      const newSponsor = {
-        id: nextId,
-        ...data,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      setSponsors(prev => [...prev, newSponsor]);
-    }
+  const handleDialogClose = () => {
     setIsDialogOpen(false);
     setEditingSponsor(null);
+    refetch();
   };
 
   return (
@@ -127,19 +102,13 @@ export default function Dashboard() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Sponsoring Management</h1>
           <p className="text-muted-foreground mt-1">
-            Verwalten Sie Ihre Sponsoring-Kontakte (Statische Version)
+            Verwalten Sie Ihre Sponsoring-Kontakte und deren Status
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button onClick={handleAddNew} className="gap-2">
-            <Plus className="h-4 w-4" />
-            Neuer Sponsor
-          </Button>
-          <Button variant="outline" className="gap-2" onClick={() => alert("Um Änderungen dauerhaft zu speichern, bearbeite bitte die data/sponsors.json direkt auf GitHub oder nutze einen Pull Request.")}>
-            <Save className="h-4 w-4" />
-            Speichern Info
-          </Button>
-        </div>
+        <Button onClick={handleAddNew} className="gap-2">
+          <Plus className="h-4 w-4" />
+          Neuer Sponsor
+        </Button>
       </div>
 
       {/* Statistics Cards */}
@@ -227,6 +196,9 @@ export default function Dashboard() {
               </SelectContent>
             </Select>
           </div>
+          <p className="text-sm text-muted-foreground">
+            {filteredSponsors.length} von {sponsors.length} Sponsoren angezeigt
+          </p>
         </CardContent>
       </Card>
 
@@ -234,6 +206,9 @@ export default function Dashboard() {
       <Card>
         <CardHeader>
           <CardTitle>Sponsoren-Liste</CardTitle>
+          <CardDescription>
+            Alle Sponsoring-Kontakte mit ihrem aktuellen Status
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -253,24 +228,53 @@ export default function Dashboard() {
                     <TableHead>Ansprechpartner</TableHead>
                     <TableHead>E-Mail</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead>Notizen</TableHead>
+                    <TableHead>E-Mail versendet</TableHead>
+                    <TableHead>Antwort erhalten</TableHead>
                     <TableHead className="text-right">Aktionen</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredSponsors.map((sponsor) => (
                     <TableRow key={sponsor.id}>
-                      <TableCell className="font-medium">{sponsor.companyName}</TableCell>
+                      <TableCell className="font-medium">
+                        {sponsor.companyName}
+                      </TableCell>
                       <TableCell>{sponsor.contactPerson}</TableCell>
-                      <TableCell>{sponsor.email}</TableCell>
+                      <TableCell className="text-sm">{sponsor.email}</TableCell>
                       <TableCell>
-                        <Badge className={STATUS_COLORS[sponsor.status]}>{sponsor.status}</Badge>
+                        <Badge className={STATUS_COLORS[sponsor.status]}>
+                          {sponsor.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-sm max-w-xs truncate">
+                        {sponsor.notes || "-"}
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        {sponsor.emailSentDate
+                          ? new Date(sponsor.emailSentDate).toLocaleDateString("de-CH")
+                          : "-"}
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        {sponsor.responseDate
+                          ? new Date(sponsor.responseDate).toLocaleDateString("de-CH")
+                          : "-"}
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <Button variant="ghost" size="sm" onClick={() => handleEdit(sponsor)}>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEdit(sponsor)}
+                          >
                             <Edit2 className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="sm" onClick={() => handleDelete(sponsor.id)}>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDelete(sponsor.id)}
+                            disabled={deleteMutation.isPending}
+                          >
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
                         </div>
@@ -289,9 +293,7 @@ export default function Dashboard() {
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         sponsor={editingSponsor}
-        onClose={() => setIsDialogOpen(false)}
-        // @ts-ignore - Vereinfacht für statische Demo
-        onSubmit={handleSaveSponsor}
+        onClose={handleDialogClose}
       />
     </div>
   );
