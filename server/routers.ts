@@ -6,7 +6,7 @@ import { z } from "zod";
 import { createSponsor, updateSponsor, deleteSponsor, getAllSponsors, getSponsorById } from "./db";
 import { TRPCError } from "@trpc/server";
 
-const MASTER_PASSWORD = "Management";
+const MASTER_PASSWORD = "Management67";
 
 export const appRouter = router({
   system: systemRouter,
@@ -36,19 +36,33 @@ export const appRouter = router({
     }),
     
     me: publicProcedure.query(({ ctx }) => {
-      // Always return authenticated for public access
-      return { isAuthenticated: true };
+      const isAuthenticated = ctx.req.cookies?.[COOKIE_NAME] === 'authenticated';
+      return { isAuthenticated };
     }),
   }),
 
   sponsors: router({
-    list: publicProcedure.query(async () => {
+    list: publicProcedure.query(async ({ ctx }) => {
+      const isAuthenticated = ctx.req.cookies?.[COOKIE_NAME] === 'authenticated';
+      if (!isAuthenticated) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Authentifizierung erforderlich",
+        });
+      }
       return await getAllSponsors();
     }),
     
     get: publicProcedure
       .input(z.object({ id: z.number() }))
-      .query(async ({ input }) => {
+      .query(async ({ input, ctx }) => {
+        const isAuthenticated = ctx.req.cookies?.[COOKIE_NAME] === 'authenticated';
+        if (!isAuthenticated) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "Authentifizierung erforderlich",
+          });
+        }
         return await getSponsorById(input.id);
       }),
     
@@ -67,7 +81,14 @@ export const appRouter = router({
           "Zusage/Partner"
         ]).default("Noch nicht kontaktiert"),
       }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        const isAuthenticated = ctx.req.cookies?.[COOKIE_NAME] === 'authenticated';
+        if (!isAuthenticated) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "Authentifizierung erforderlich",
+          });
+        }
         return await createSponsor(input);
       }),
     
@@ -89,14 +110,28 @@ export const appRouter = router({
         emailSentDate: z.date().optional().nullable(),
         responseDate: z.date().optional().nullable(),
       }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        const isAuthenticated = ctx.req.cookies?.[COOKIE_NAME] === 'authenticated';
+        if (!isAuthenticated) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "Authentifizierung erforderlich",
+          });
+        }
         const { id, ...data } = input;
         return await updateSponsor(id, data);
       }),
     
     delete: publicProcedure
       .input(z.object({ id: z.number() }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        const isAuthenticated = ctx.req.cookies?.[COOKIE_NAME] === 'authenticated';
+        if (!isAuthenticated) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "Authentifizierung erforderlich",
+          });
+        }
         return await deleteSponsor(input.id);
       }),
   }),
