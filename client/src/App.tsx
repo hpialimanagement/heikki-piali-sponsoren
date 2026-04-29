@@ -1,24 +1,51 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { Navigation } from "./components/Navigation";
 import Dashboard from "./pages/Dashboard";
-import DashboardLayout from "./components/DashboardLayout";
+import NotFound from "./pages/NotFound";
+
+// Seiten-Komponenten
+function SponsorsPage() {
+  return (
+    <div className="container mx-auto py-8 px-4">
+      <h1 className="text-3xl font-bold mb-6">Sponsoren</h1>
+      <Dashboard />
+    </div>
+  );
+}
+
+function RCBPage() {
+  return (
+    <div className="container mx-auto py-8 px-4">
+      <h1 className="text-3xl font-bold mb-6">RCB Informationen</h1>
+      <div className="bg-card border rounded-lg p-6">
+        <p className="text-muted-foreground">RCB-Seite - Inhalte folgen</p>
+      </div>
+    </div>
+  );
+}
+
+function ManagementPage() {
+  return (
+    <div className="container mx-auto py-8 px-4">
+      <h1 className="text-3xl font-bold mb-6">Management & Datenbank</h1>
+      <Dashboard />
+    </div>
+  );
+}
 
 function Router() {
   return (
-    <DashboardLayout>
-      <Switch>
-        <Route path={"/"} component={Dashboard} />
-        <Route path={"/sponsoren"} component={Dashboard} />
-        <Route path={"/management"} component={Dashboard} />
-        <Route path={"/404"} component={NotFound} />
-        {/* Final fallback route */}
-        <Route component={NotFound} />
-      </Switch>
-    </DashboardLayout>
+    <Switch>
+      <Route path="/sponsoren" component={SponsorsPage} />
+      <Route path="/rcb" component={RCBPage} />
+      <Route path="/management" component={ManagementPage} />
+      <Route path="/" component={SponsorsPage} />
+      <Route component={NotFound} />
+    </Switch>
   );
 }
 
@@ -28,6 +55,7 @@ function App() {
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
           <Toaster />
+          <Navigation />
           <Router />
         </TooltipProvider>
       </ThemeProvider>
