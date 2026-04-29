@@ -13,7 +13,7 @@ app.use(cookieParser());
 // ============================================================
 let inMemorySponsors = [];
 let nextId = 1;
-const MASTER_PASSWORD = 'Management67';
+const MASTER_PASSWORD = 'Management';
 const COOKIE_NAME = 'app_session_id';
 
 // Auth check middleware
@@ -75,7 +75,8 @@ app.get('/api/trpc/auth.me', (req, res) => {
   res.json(trpcResponse({ isAuthenticated }));
 });
 
-app.get('/api/trpc/sponsors.list', requireAuth, (req, res) => {
+// Sponsoren-Liste: ÖFFENTLICH (kein Auth erforderlich)
+app.get('/api/trpc/sponsors.list', (req, res) => {
   res.json(trpcResponse(inMemorySponsors));
 });
 

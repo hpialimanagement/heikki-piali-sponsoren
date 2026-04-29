@@ -6,7 +6,7 @@ import { z } from "zod";
 import { createSponsor, updateSponsor, deleteSponsor, getAllSponsors, getSponsorById } from "./db";
 import { TRPCError } from "@trpc/server";
 
-const MASTER_PASSWORD = "Management67";
+const MASTER_PASSWORD = "Management";
 
 export const appRouter = router({
   system: systemRouter,
@@ -42,30 +42,18 @@ export const appRouter = router({
   }),
 
   sponsors: router({
-    list: publicProcedure.query(async ({ ctx }) => {
-      const isAuthenticated = ctx.req.cookies?.[COOKIE_NAME] === 'authenticated';
-      if (!isAuthenticated) {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "Authentifizierung erforderlich",
-        });
-      }
+    // Sponsoren-Liste: ÖFFENTLICH (kein Auth erforderlich)
+    list: publicProcedure.query(async () => {
       return await getAllSponsors();
     }),
     
     get: publicProcedure
       .input(z.object({ id: z.number() }))
-      .query(async ({ input, ctx }) => {
-        const isAuthenticated = ctx.req.cookies?.[COOKIE_NAME] === 'authenticated';
-        if (!isAuthenticated) {
-          throw new TRPCError({
-            code: "UNAUTHORIZED",
-            message: "Authentifizierung erforderlich",
-          });
-        }
+      .query(async ({ input }) => {
         return await getSponsorById(input.id);
       }),
     
+    // Sponsor erstellen: Nur mit Auth
     create: publicProcedure
       .input(z.object({
         companyName: z.string().min(1),
@@ -92,6 +80,7 @@ export const appRouter = router({
         return await createSponsor(input);
       }),
     
+    // Sponsor aktualisieren: Nur mit Auth
     update: publicProcedure
       .input(z.object({
         id: z.number(),
@@ -122,6 +111,7 @@ export const appRouter = router({
         return await updateSponsor(id, data);
       }),
     
+    // Sponsor löschen: Nur mit Auth
     delete: publicProcedure
       .input(z.object({ id: z.number() }))
       .mutation(async ({ input, ctx }) => {

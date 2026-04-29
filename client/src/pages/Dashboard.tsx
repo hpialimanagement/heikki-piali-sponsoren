@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Trash2, Edit2 } from "lucide-react";
 import { SponsorDialog } from "@/components/SponsorDialog";
 import { Sponsor } from "@shared/types";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 const STATUS_COLORS: Record<string, string> = {
   "Noch nicht kontaktiert": "bg-slate-100 text-slate-900",
@@ -34,6 +35,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function Dashboard() {
+  const { isAuthenticated } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [editingSponsor, setEditingSponsor] = useState<Sponsor | null>(null);
@@ -65,6 +67,7 @@ export default function Dashboard() {
     
     return newSponsors;
   }, 5 * 60 * 1000); // 5 Minuten
+  
   const deleteMutation = trpc.sponsors.delete.useMutation({
     onSuccess: () => refetch(),
   });
@@ -131,10 +134,12 @@ export default function Dashboard() {
             Verwalten Sie Ihre Sponsoring-Kontakte und deren Status
           </p>
         </div>
-        <Button onClick={handleAddNew} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Neuer Sponsor
-        </Button>
+        {isAuthenticated && (
+          <Button onClick={handleAddNew} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Neuer Sponsor
+          </Button>
+        )}
       </div>
 
       {/* Statistics Cards */}
@@ -257,7 +262,7 @@ export default function Dashboard() {
                     <TableHead>Notizen</TableHead>
                     <TableHead>E-Mail versendet</TableHead>
                     <TableHead>Antwort erhalten</TableHead>
-                    <TableHead className="text-right">Aktionen</TableHead>
+                    {isAuthenticated && <TableHead className="text-right">Aktionen</TableHead>}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -286,25 +291,27 @@ export default function Dashboard() {
                           ? new Date(sponsor.responseDate).toLocaleDateString("de-CH")
                           : "-"}
                       </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEdit(sponsor)}
-                          >
-                            <Edit2 className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDelete(sponsor.id)}
-                            disabled={deleteMutation.isPending}
-                          >
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        </div>
-                      </TableCell>
+                      {isAuthenticated && (
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleEdit(sponsor)}
+                            >
+                              <Edit2 className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDelete(sponsor.id)}
+                              disabled={deleteMutation.isPending}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
                 </TableBody>
@@ -314,13 +321,15 @@ export default function Dashboard() {
         </CardContent>
       </Card>
 
-      {/* Dialog for adding/editing sponsors */}
-      <SponsorDialog
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        sponsor={editingSponsor}
-        onClose={handleDialogClose}
-      />
+      {/* Dialog for adding/editing sponsors (only for authenticated users) */}
+      {isAuthenticated && (
+        <SponsorDialog
+          open={isDialogOpen}
+          onOpenChange={setIsDialogOpen}
+          sponsor={editingSponsor}
+          onClose={handleDialogClose}
+        />
+      )}
     </div>
   );
 }

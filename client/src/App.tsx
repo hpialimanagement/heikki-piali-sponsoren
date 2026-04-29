@@ -16,19 +16,26 @@ function Router() {
     return null; // Or a global loader
   }
 
-  if (!isAuthenticated) {
-    return <Login />;
-  }
-
   return (
-    <DashboardLayout>
-      <Switch>
-        <Route path={"/"} component={Dashboard} />
-        <Route path={"/404"} component={NotFound} />
-        {/* Final fallback route */}
-        <Route component={NotFound} />
-      </Switch>
-    </DashboardLayout>
+    <Switch>
+      {/* Öffentliche Sponsoren-Seite (kein Login erforderlich) */}
+      <Route path="/sponsoren" component={Dashboard} />
+      
+      {/* Management-Seite (Login erforderlich) */}
+      <Route path="/">
+        {isAuthenticated ? (
+          <DashboardLayout>
+            <Dashboard />
+          </DashboardLayout>
+        ) : (
+          <Login />
+        )}
+      </Route>
+
+      {/* 404 */}
+      <Route path="/404" component={NotFound} />
+      <Route component={NotFound} />
+    </Switch>
   );
 }
 
