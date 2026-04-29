@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Heikki Piali - Management</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; background: #f5f5f5; color: #333; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    header { background: white; padding: 20px 0; margin-bottom: 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    h1 { font-size: 2em; margin-bottom: 10px; }
+    .nav { margin-top: 20px; display: flex; gap: 10px; }
+    .nav a { padding: 10px 20px; background: #0070f3; color: white; text-decoration: none; border-radius: 5px; }
+    .nav a:hover { background: #0051cc; }
+    .content { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; margin-bottom: 5px; font-weight: 600; }
+    input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-family: inherit; }
+    textarea { resize: vertical; min-height: 80px; }
+    .btn { padding: 10px 20px; background: #0070f3; color: white; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px; }
+    .btn:hover { background: #0051cc; }
+    .btn-danger { background: #f00; }
+    .btn-danger:hover { background: #c00; }
+    table { width: 100%; border-collapse: collapse; margin-top: 30px; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+    th { background: #f0f0f0; font-weight: 600; }
+    tr:hover { background: #f9f9f9; }
+    .loading { text-align: center; padding: 40px; color: #999; }
+    .error { background: #fee; color: #c00; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+    .success { background: #efe; color: #060; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+    .actions { display: flex; gap: 5px; }
+    .actions button { padding: 5px 10px; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Heikki Piali - Management</h1>
+      <div class="nav">
+        <a href="sponsoren.html">Sponsoren</a>
+        <a href="rcb.html">RCB</a>
+        <a href="management.html">Management</a>
+      </div>
+    </div>
+  </header>
+  
+  <div class="container">
+    <div class="content">
+      <h2>Sponsoren-Verwaltung</h2>
+      <div id="message"></div>
+      
+      <div style="background: #f9f9f9; padding: 20px; border-radius: 5px; margin-bottom: 30px;">
+        <h3>Neuer Sponsor</h3>
+        <form id="sponsor-form">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div class="form-group">
+              <label>Firmenname</label>
+              <input type="text" id="companyName" required>
+            </div>
+            <div class="form-group">
+              <label>Ansprechpartner</label>
+              <input type="text" id="contactPerson" required>
+            </div>
+            <div class="form-group">
+              <label>E-Mail</label>
+              <input type="email" id="email" required>
+            </div>
+            <div class="form-group">
+              <label>Status</label>
+              <select id="status">
+                <option>Noch nicht kontaktiert</option>
+                <option>E-Mail in Vorbereitung</option>
+                <option>E-Mail gesendet</option>
+                <option>Antwort erhalten</option>
+                <option>Absage</option>
+                <option>Zusage/Partner</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="btn">Sponsor hinzufügen</button>
+        </form>
+      </div>
+
+      <h3>Alle Sponsoren</h3>
+      <div id="loading" class="loading">Wird geladen...</div>
+      <table id="sponsors-table" style="display: none;">
+        <thead>
+          <tr>
+            <th>Firmenname</th>
+            <th>Ansprechpartner</th>
+            <th>E-Mail</th>
+            <th>Status</th>
+            <th>Aktionen</th>
+          </tr>
+        </thead>
+        <tbody id="sponsors-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    let sponsors = [];
+
+    async function loadSponsors() {
+      try {
+        const response = await fetch('https://raw.githubusercontent.com/hpialimanagement/heikki-piali-sponsoren/main/data/sponsors.json');
+        if (!response.ok) throw new Error('Fehler beim Laden der Daten');
+        
+        sponsors = await response.json();
+        renderTable();
+      } catch (error) {
+        showMessage(`Fehler: ${error.message}`, 'error');
+        document.getElementById('loading').style.display = 'none';
+      }
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('sponsors-body');
+      const table = document.getElementById('sponsors-table');
+      const loading = document.getElementById('loading');
+      
+      tbody.innerHTML = '';
+      sponsors.forEach((sponsor, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${sponsor.companyName}</td>
+          <td>${sponsor.contactPerson}</td>
+          <td>${sponsor.email}</td>
+          <td>${sponsor.status}</td>
+          <td>
+            <div class="actions">
+              <button class="btn" onclick="editSponsor(${index})">Bearbeiten</button>
+              <button class="btn btn-danger" onclick="deleteSponsor(${index})">Löschen</button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+      
+      loading.style.display = 'none';
+      table.style.display = 'table';
+    }
+
+    function editSponsor(index) {
+      const sponsor = sponsors[index];
+      document.getElementById('companyName').value = sponsor.companyName;
+      document.getElementById('contactPerson').value = sponsor.contactPerson;
+      document.getElementById('email').value = sponsor.email;
+      document.getElementById('status').value = sponsor.status;
+      document.getElementById('sponsor-form').dataset.editIndex = index;
+      window.scrollTo(0, 0);
+    }
+
+    function deleteSponsor(index) {
+      if (confirm('Wirklich löschen?')) {
+        sponsors.splice(index, 1);
+        renderTable();
+        showMessage('Sponsor gelöscht', 'success');
+      }
+    }
+
+    function showMessage(msg, type) {
+      const msgDiv = document.getElementById('message');
+      msgDiv.innerHTML = `<div class="${type}">${msg}</div>`;
+      setTimeout(() => { msgDiv.innerHTML = ''; }, 3000);
+    }
+
+    document.getElementById('sponsor-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const editIndex = document.getElementById('sponsor-form').dataset.editIndex;
+      
+      const sponsor = {
+        id: editIndex !== undefined ? sponsors[editIndex].id : Date.now(),
+        companyName: document.getElementById('companyName').value,
+        contactPerson: document.getElementById('contactPerson').value,
+        email: document.getElementById('email').value,
+        status: document.getElementById('status').value,
+        createdAt: editIndex !== undefined ? sponsors[editIndex].createdAt : new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      if (editIndex !== undefined) {
+        sponsors[editIndex] = sponsor;
+        delete document.getElementById('sponsor-form').dataset.editIndex;
+        showMessage('Sponsor aktualisiert', 'success');
+      } else {
+        sponsors.push(sponsor);
+        showMessage('Sponsor hinzugefügt', 'success');
+      }
+
+      document.getElementById('sponsor-form').reset();
+      renderTable();
+    });
+
+    loadSponsors();
+  </script>
+</body>
+</html>
