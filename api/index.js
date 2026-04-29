@@ -13,25 +13,7 @@ app.use(cookieParser());
 // ============================================================
 let inMemorySponsors = [];
 let nextId = 1;
-const MASTER_PASSWORD = 'Management';
 const COOKIE_NAME = 'app_session_id';
-
-// Auth check middleware
-function requireAuth(req, res, next) {
-  const isAuthenticated = req.cookies?.[COOKIE_NAME] === 'authenticated';
-  if (!isAuthenticated) {
-    return res.status(401).json({
-      error: {
-        json: {
-          message: 'Authentifizierung erforderlich',
-          code: -32001,
-          data: { code: 'UNAUTHORIZED', httpStatus: 401 }
-        }
-      }
-    });
-  }
-  next();
-}
 
 // Helper to wrap response in tRPC/SuperJSON format
 function trpcResponse(data) {
@@ -46,23 +28,9 @@ function trpcResponse(data) {
 
 // tRPC-compatible JSON API endpoints
 app.post('/api/trpc/auth.login', (req, res) => {
-  const body = req.body?.['0']?.json || req.body;
-  const { password } = body;
-  
-  if (password === MASTER_PASSWORD) {
-    res.setHeader('Set-Cookie', `${COOKIE_NAME}=authenticated; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=315360000`);
-    res.json(trpcResponse({ success: true }));
-  } else {
-    res.status(401).json([{
-      error: {
-        json: {
-          message: 'Falsches Passwort',
-          code: -32001,
-          data: { code: 'UNAUTHORIZED', httpStatus: 401 }
-        }
-      }
-    }]);
-  }
+  // Immer erfolgreich (kein Passwort erforderlich)
+  res.setHeader('Set-Cookie', `${COOKIE_NAME}=authenticated; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=315360000`);
+  res.json(trpcResponse({ success: true }));
 });
 
 app.post('/api/trpc/auth.logout', (req, res) => {
@@ -71,16 +39,16 @@ app.post('/api/trpc/auth.logout', (req, res) => {
 });
 
 app.get('/api/trpc/auth.me', (req, res) => {
-  const isAuthenticated = req.cookies?.[COOKIE_NAME] === 'authenticated';
-  res.json(trpcResponse({ isAuthenticated }));
+  // Immer authentifiziert
+  res.json(trpcResponse({ isAuthenticated: true }));
 });
 
-// Sponsoren-Liste: ÖFFENTLICH (kein Auth erforderlich)
+// Sponsoren-Liste: ÖFFENTLICH
 app.get('/api/trpc/sponsors.list', (req, res) => {
   res.json(trpcResponse(inMemorySponsors));
 });
 
-app.post('/api/trpc/sponsors.create', requireAuth, (req, res) => {
+app.post('/api/trpc/sponsors.create', (req, res) => {
   const data = req.body?.['0']?.json || req.body;
   const newSponsor = {
     id: nextId++,
@@ -98,7 +66,7 @@ app.post('/api/trpc/sponsors.create', requireAuth, (req, res) => {
   res.json(trpcResponse(newSponsor));
 });
 
-app.post('/api/trpc/sponsors.update', requireAuth, (req, res) => {
+app.post('/api/trpc/sponsors.update', (req, res) => {
   const data = req.body?.['0']?.json || req.body;
   const { id, ...updates } = data;
   const idx = inMemorySponsors.findIndex(s => s.id === id);
@@ -107,7 +75,7 @@ app.post('/api/trpc/sponsors.update', requireAuth, (req, res) => {
   res.json(trpcResponse(inMemorySponsors[idx]));
 });
 
-app.post('/api/trpc/sponsors.delete', requireAuth, (req, res) => {
+app.post('/api/trpc/sponsors.delete', (req, res) => {
   const data = req.body?.['0']?.json || req.body;
   inMemorySponsors = inMemorySponsors.filter(s => s.id !== data.id);
   res.json(trpcResponse(true));

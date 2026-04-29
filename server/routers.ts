@@ -6,21 +6,14 @@ import { z } from "zod";
 import { createSponsor, updateSponsor, deleteSponsor, getAllSponsors, getSponsorById } from "./db";
 import { TRPCError } from "@trpc/server";
 
-const MASTER_PASSWORD = "Management";
-
 export const appRouter = router({
   system: systemRouter,
   
   auth: router({
     login: publicProcedure
       .input(z.object({ password: z.string() }))
-      .mutation(({ input, ctx }) => {
-        if (input.password !== MASTER_PASSWORD) {
-          throw new TRPCError({
-            code: "UNAUTHORIZED",
-            message: "Falsches Passwort",
-          });
-        }
+      .mutation(({ ctx }) => {
+        // Kein Passwort erforderlich - immer erfolgreich
         const cookieOptions = getSessionCookieOptions(ctx.req);
         const tenYearsInSeconds = 10 * 365 * 24 * 60 * 60;
         ctx.res.setHeader("Set-Cookie", [
@@ -35,14 +28,14 @@ export const appRouter = router({
       return { success: true } as const;
     }),
     
-    me: publicProcedure.query(({ ctx }) => {
-      const isAuthenticated = ctx.req.cookies?.[COOKIE_NAME] === 'authenticated';
-      return { isAuthenticated };
+    me: publicProcedure.query(() => {
+      // Immer authentifiziert
+      return { isAuthenticated: true };
     }),
   }),
 
   sponsors: router({
-    // Sponsoren-Liste: ÖFFENTLICH (kein Auth erforderlich)
+    // Sponsoren-Liste: ÖFFENTLICH
     list: publicProcedure.query(async () => {
       return await getAllSponsors();
     }),
@@ -53,7 +46,7 @@ export const appRouter = router({
         return await getSponsorById(input.id);
       }),
     
-    // Sponsor erstellen: Nur mit Auth
+    // Sponsor erstellen: ÖFFENTLICH
     create: publicProcedure
       .input(z.object({
         companyName: z.string().min(1),
@@ -69,18 +62,11 @@ export const appRouter = router({
           "Zusage/Partner"
         ]).default("Noch nicht kontaktiert"),
       }))
-      .mutation(async ({ input, ctx }) => {
-        const isAuthenticated = ctx.req.cookies?.[COOKIE_NAME] === 'authenticated';
-        if (!isAuthenticated) {
-          throw new TRPCError({
-            code: "UNAUTHORIZED",
-            message: "Authentifizierung erforderlich",
-          });
-        }
+      .mutation(async ({ input }) => {
         return await createSponsor(input);
       }),
     
-    // Sponsor aktualisieren: Nur mit Auth
+    // Sponsor aktualisieren: ÖFFENTLICH
     update: publicProcedure
       .input(z.object({
         id: z.number(),
@@ -99,29 +85,15 @@ export const appRouter = router({
         emailSentDate: z.date().optional().nullable(),
         responseDate: z.date().optional().nullable(),
       }))
-      .mutation(async ({ input, ctx }) => {
-        const isAuthenticated = ctx.req.cookies?.[COOKIE_NAME] === 'authenticated';
-        if (!isAuthenticated) {
-          throw new TRPCError({
-            code: "UNAUTHORIZED",
-            message: "Authentifizierung erforderlich",
-          });
-        }
+      .mutation(async ({ input }) => {
         const { id, ...data } = input;
         return await updateSponsor(id, data);
       }),
     
-    // Sponsor löschen: Nur mit Auth
+    // Sponsor löschen: ÖFFENTLICH
     delete: publicProcedure
       .input(z.object({ id: z.number() }))
-      .mutation(async ({ input, ctx }) => {
-        const isAuthenticated = ctx.req.cookies?.[COOKIE_NAME] === 'authenticated';
-        if (!isAuthenticated) {
-          throw new TRPCError({
-            code: "UNAUTHORIZED",
-            message: "Authentifizierung erforderlich",
-          });
-        }
+      .mutation(async ({ input }) => {
         return await deleteSponsor(input.id);
       }),
   }),
