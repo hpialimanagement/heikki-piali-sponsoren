@@ -5,7 +5,7 @@
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/index" },
     { "source": "/health", "destination": "/api/index" },
-    { "source": "/((?!api|health|assets).*)", "destination": "/dist/public/index.html" }
+    { "source": "/((?!api|health|_next|assets|.*\\..*$).*)", "destination": "/index.html" }
   ],
   "outputDirectory": "dist/public"
 }
