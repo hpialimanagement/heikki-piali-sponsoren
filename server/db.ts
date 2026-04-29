@@ -2,6 +2,9 @@ import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users, InsertSponsor, sponsors } from "../drizzle/schema";
 import { ENV } from './_core/env';
+import fs from 'fs';
+import path from 'path';
+import { execSync } from 'child_process';
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -19,9 +22,52 @@ export async function getDb() {
 }
 
 // ============================================================
-// In-Memory Fallback (used when no DATABASE_URL is set)
-// Data persists during runtime but resets on server restart
+// Dateibasierte Speicherung (GitHub)
 // ============================================================
+const DATA_DIR = path.join(process.cwd(), 'data');
+const SPONSORS_FILE = path.join(DATA_DIR, 'sponsors.json');
+
+// Stelle sicher, dass das Verzeichnis existiert
+if (!fs.existsSync(DATA_DIR)) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+}
+
+// Initialisiere die Datei, falls sie nicht existiert
+if (!fs.existsSync(SPONSORS_FILE)) {
+  fs.writeFileSync(SPONSORS_FILE, JSON.stringify([], null, 2));
+}
+
+// Lade Sponsoren aus der Datei
+function loadSponsorsFromFile(): any[] {
+  try {
+    const data = fs.readFileSync(SPONSORS_FILE, 'utf-8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.warn("[File] Error reading sponsors:", error);
+    return [];
+  }
+}
+
+// Speichere Sponsoren in der Datei und committe zu Git
+function saveSponsoresToFile(sponsors: any[], message: string = 'Update sponsors data') {
+  try {
+    fs.writeFileSync(SPONSORS_FILE, JSON.stringify(sponsors, null, 2));
+    
+    // Versuche, zu Git zu committen
+    try {
+      execSync(`git add data/sponsors.json && git commit -m "${message}" 2>/dev/null || true`, {
+        cwd: process.cwd(),
+        stdio: 'pipe'
+      });
+    } catch (gitError) {
+      // Git-Fehler ignorieren
+    }
+  } catch (error) {
+    console.error("[File] Error writing sponsors:", error);
+  }
+}
+
+// In-Memory Fallback (für Entwicklung ohne Datei)
 let inMemorySponsors: any[] = [];
 let nextSponsorId = 1;
 let inMemoryUsers: any[] = [];
@@ -86,6 +132,12 @@ export async function getUserByOpenId(openId: string) {
 export async function getSponsorById(id: number) {
   const db = await getDb();
   if (!db) {
+    // Versuche zuerst aus der Datei zu laden
+    const fileSponsors = loadSponsorsFromFile();
+    const fromFile = fileSponsors.find(s => s.id === id);
+    if (fromFile) return fromFile;
+    
+    // Fallback auf In-Memory
     return inMemorySponsors.find(s => s.id === id);
   }
   const result = await db.select().from(sponsors).where(eq(sponsors.id, id)).limit(1);
@@ -95,6 +147,15 @@ export async function getSponsorById(id: number) {
 export async function getAllSponsors() {
   const db = await getDb();
   if (!db) {
+    // Lade aus Datei, wenn vorhanden
+    const fileSponsors = loadSponsorsFromFile();
+    if (fileSponsors.length > 0) {
+      return fileSponsors.sort((a, b) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      );
+    }
+    
+    // Fallback auf In-Memory
     return [...inMemorySponsors].sort((a, b) =>
       new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
     );
@@ -105,13 +166,17 @@ export async function getAllSponsors() {
 export async function createSponsor(data: InsertSponsor) {
   const db = await getDb();
   if (!db) {
+    const sponsors = loadSponsorsFromFile();
+    const nextId = sponsors.length > 0 ? Math.max(...sponsors.map(s => s.id)) + 1 : 1;
+    
     const newSponsor = {
-      id: nextSponsorId++,
+      id: nextId,
       ...data,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    inMemorySponsors.push(newSponsor);
+    sponsors.push(newSponsor);
+    saveSponsoresToFile(sponsors, `Add sponsor: ${newSponsor.companyName}`);
     return newSponsor;
   }
   const result = await db.insert(sponsors).values(data);
@@ -123,10 +188,12 @@ export async function createSponsor(data: InsertSponsor) {
 export async function updateSponsor(id: number, data: Partial<InsertSponsor>) {
   const db = await getDb();
   if (!db) {
-    const idx = inMemorySponsors.findIndex(s => s.id === id);
+    const sponsors = loadSponsorsFromFile();
+    const idx = sponsors.findIndex(s => s.id === id);
     if (idx < 0) throw new Error("Sponsor not found");
-    inMemorySponsors[idx] = { ...inMemorySponsors[idx], ...data, updatedAt: new Date() };
-    return inMemorySponsors[idx];
+    sponsors[idx] = { ...sponsors[idx], ...data, updatedAt: new Date() };
+    saveSponsoresToFile(sponsors, `Update sponsor: ${sponsors[idx].companyName}`);
+    return sponsors[idx];
   }
   await db.update(sponsors).set(data).where(eq(sponsors.id, id));
   return getSponsorById(id);
@@ -135,7 +202,10 @@ export async function updateSponsor(id: number, data: Partial<InsertSponsor>) {
 export async function deleteSponsor(id: number) {
   const db = await getDb();
   if (!db) {
-    inMemorySponsors = inMemorySponsors.filter(s => s.id !== id);
+    const sponsors = loadSponsorsFromFile();
+    const deleted = sponsors.find(s => s.id === id);
+    const filtered = sponsors.filter(s => s.id !== id);
+    saveSponsoresToFile(filtered, `Delete sponsor: ${deleted?.companyName || 'Unknown'}`);
     return true;
   }
   await db.delete(sponsors).where(eq(sponsors.id, id));
