@@ -1,9 +1,9 @@
-import { useLocation } from "wouter";
+import { useHashLocation } from "wouter/use-hash-location";
 import { Button } from "@/components/ui/button";
 import { Users, Info, Settings } from "lucide-react";
 
 export function Navigation() {
-  const [location, setLocation] = useLocation();
+  const [location, setLocation] = useHashLocation();
 
   const isActive = (path: string) => location === path;
 
