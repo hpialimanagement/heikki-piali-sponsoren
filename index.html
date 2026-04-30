@@ -1,12 +1,755 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Heikki Piali Sponsoren Management</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heikki Piali – Sponsoren Dossier 2026/2027</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#05080f;
+  --ink2:#080d18;
+  --ink3:#0d1525;
+  --ink4:#111d30;
+  --white:#ffffff;
+  --snow:#f0f4f8;
+  --red:#c8102e;
+  --red2:#a50d26;
+  --red3:#e01535;
+  --ice:#c8dff0;
+  --gold:#e8c84a;
+  --silver:#b8ceda;
+  --bronze:#d4a870;
+  --muted:rgba(255,255,255,0.52);
+  --dim:rgba(255,255,255,0.25);
+  --subtle:rgba(255,255,255,0.08);
+  --line:rgba(255,255,255,0.09);
+  --line2:rgba(255,255,255,0.045);
+  --glow:rgba(200,16,46,0.18);
+}
+html{scroll-behavior:smooth}
+body{font-family:'Barlow',sans-serif;background:var(--ink);color:var(--white);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:2px}::-webkit-scrollbar-track{background:var(--ink)}::-webkit-scrollbar-thumb{background:var(--red)}
+
+/* ─── NOISE TEXTURE OVERLAY ─── */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");opacity:0.4;pointer-events:none;z-index:1000}
+
+/* ─── NAV ─── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:0 3rem;height:60px;
+  background:rgba(5,8,15,0.92);backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);
+  border-bottom:1px solid var(--line2);
+}
+.n-brand{
+  font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:0.18em;
+  display:flex;align-items:center;gap:0.6rem;color:#fff;text-decoration:none;
+}
+.n-pip{width:6px;height:6px;border-radius:50%;background:var(--red);animation:pulse-dot 2.4s ease infinite}
+@keyframes pulse-dot{0%,100%{box-shadow:0 0 0 0 rgba(200,16,46,0.5)}50%{box-shadow:0 0 0 5px rgba(200,16,46,0)}}
+.n-links{display:flex;gap:2.2rem;align-items:center}
+.n-links a{
+  font-family:'Barlow Condensed',sans-serif;font-size:0.72rem;
+  letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--muted);text-decoration:none;transition:color 0.2s;font-weight:500;
+}
+.n-links a:hover{color:#fff}
+.n-cta{
+  background:var(--red)!important;color:#fff!important;
+  padding:0.45rem 1.2rem;border-radius:2px;
+  font-size:0.72rem;font-weight:600!important;
+  letter-spacing:0.14em;transition:background 0.2s!important;
+}
+.n-cta:hover{background:var(--red3)!important}
+@media(max-width:720px){nav{padding:0 1.25rem}.n-links{display:none}}
+
+/* ─── HERO ─── */
+.hero{
+  min-height:100vh;position:relative;
+  display:grid;grid-template-columns:1fr 1fr;overflow:hidden;
+}
+@media(max-width:900px){.hero{grid-template-columns:1fr;min-height:auto}}
+.hero-left{
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:8rem 3.5rem 5rem;position:relative;z-index:2;
+}
+@media(max-width:720px){.hero-left{padding:6rem 1.5rem 3.5rem}}
+.hero-right{position:relative;overflow:hidden}
+@media(max-width:900px){.hero-right{height:60vw;min-height:300px}}
+.hero-photo{
+  position:absolute;inset:0;
+  background:
+    linear-gradient(105deg,var(--ink) 0%,rgba(5,8,15,0.45) 55%,transparent 100%),
+    linear-gradient(to top,var(--ink) 0%,rgba(5,8,15,0.2) 40%,transparent 70%),
+    url('heikki-photo.png') center top/cover no-repeat;
+}
+.hero-photo::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(200,16,46,0.06) 0%,transparent 60%);
+}
+
+/* diagonal accent line */
+.hero::after{
+  content:'';position:absolute;left:48%;top:0;bottom:0;width:1px;
+  background:linear-gradient(to bottom,transparent,rgba(200,16,46,0.3) 30%,rgba(200,16,46,0.15) 70%,transparent);
+  pointer-events:none;z-index:3;
+}
+@media(max-width:900px){.hero::after{display:none}}
+
+.hero-tag{
+  display:inline-flex;align-items:center;gap:0.6rem;
+  background:rgba(200,16,46,0.1);border:1px solid rgba(200,16,46,0.32);
+  padding:0.28rem 0.9rem;border-radius:2px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:0.68rem;letter-spacing:0.22em;text-transform:uppercase;color:#ff7085;
+  margin-bottom:1.6rem;width:fit-content;
+  animation:fadeUp 0.7s ease 0.1s both;
+}
+.hero-tag-dot{width:5px;height:5px;border-radius:50%;background:var(--red);animation:blink 2.2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.25}}
+
+.hero-name{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(5rem,10vw,9.5rem);line-height:0.84;letter-spacing:0.02em;
+  margin-bottom:1.5rem;animation:fadeUp 0.7s ease 0.22s both;
+}
+.hero-name b{display:block;color:#fff;font-weight:400}
+.hero-name em{display:block;color:var(--red);font-style:normal}
+
+.hero-sub{
+  font-size:0.92rem;font-weight:300;color:rgba(255,255,255,0.62);
+  line-height:1.85;max-width:360px;margin-bottom:2.5rem;
+  animation:fadeUp 0.7s ease 0.36s both;
+  border-left:2px solid rgba(200,16,46,0.4);padding-left:1rem;
+}
+
+.hero-btns{display:flex;gap:0.75rem;flex-wrap:wrap;animation:fadeUp 0.7s ease 0.48s both}
+.btn-r{
+  background:var(--red);color:#fff;
+  padding:0.85rem 2rem;border-radius:2px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:0.8rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;
+  text-decoration:none;transition:background 0.2s,transform 0.15s;
+  display:inline-block;
+}
+.btn-r:hover{background:var(--red3);transform:translateY(-2px)}
+.btn-g{
+  border:1px solid rgba(255,255,255,0.18);color:#fff;
+  padding:0.85rem 2rem;border-radius:2px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:0.8rem;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;
+  text-decoration:none;transition:border-color 0.2s,background 0.2s;
+}
+.btn-g:hover{border-color:rgba(255,255,255,0.45);background:rgba(255,255,255,0.05)}
+
+.hero-kpi{
+  display:flex;gap:2.5rem;flex-wrap:wrap;
+  margin-top:3.5rem;padding-top:2rem;
+  border-top:1px solid var(--line);
+  animation:fadeUp 0.7s ease 0.6s both;
+}
+.kpi-v{
+  font-family:'Bebas Neue',sans-serif;font-size:3rem;line-height:1;
+  color:#fff;
+}
+.kpi-v em{color:var(--red);font-style:normal}
+.kpi-l{font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-top:0.3rem;line-height:1.55}
+@keyframes fadeUp{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── LAYOUT ─── */
+.w{max-width:1140px;margin:0 auto;padding:0 2.5rem}
+@media(max-width:720px){.w{padding:0 1.25rem}}
+.sec{padding:8rem 0}
+@media(max-width:720px){.sec{padding:5rem 0}}
+.sec-alt{background:var(--ink2)}
+hr.div{border:none;border-top:1px solid var(--line2);margin:0}
+
+.eyebrow{display:flex;align-items:center;gap:0.75rem;margin-bottom:0.9rem}
+.eyebrow-bar{width:28px;height:2px;background:var(--red);flex-shrink:0}
+.eyebrow-txt{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:0.68rem;letter-spacing:0.24em;text-transform:uppercase;
+  color:var(--red);font-weight:600;
+}
+.stitle{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(2.8rem,5.5vw,4.5rem);
+  line-height:0.88;letter-spacing:0.03em;margin-bottom:1rem;
+}
+
+/* ─── ABOUT ─── */
+.about-g{display:grid;grid-template-columns:300px 1fr;gap:5rem;align-items:start;margin-top:4rem}
+@media(max-width:900px){.about-g{grid-template-columns:1fr;gap:3rem}}
+
+.stat-card{
+  border:1px solid var(--line);border-radius:3px;overflow:hidden;
+  background:var(--ink2);
+}
+.stat-card-head{
+  padding:1rem 1.4rem;
+  background:var(--red);
+  border-bottom:1px solid rgba(255,255,255,0.12);
+}
+.stat-card-head h3{
+  font-family:'Bebas Neue',sans-serif;font-size:1.15rem;letter-spacing:0.16em;font-weight:400;
+}
+.stat-row{display:flex;border-bottom:1px solid var(--line2)}
+.stat-row:last-child{border-bottom:none}
+.stat-k{
+  padding:0.9rem 1.1rem;font-family:'Barlow Condensed',sans-serif;
+  font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--muted);font-weight:500;width:115px;flex-shrink:0;
+  border-right:1px solid var(--line2);display:flex;align-items:center;line-height:1.4;
+}
+.stat-v{padding:0.9rem 1.1rem;font-size:0.86rem;font-weight:300;line-height:1.5;color:#fff}
+
+.bio p{
+  font-size:0.95rem;font-weight:300;color:rgba(255,255,255,0.68);
+  line-height:1.95;margin-bottom:1.4rem;
+}
+.bio p:last-child{margin-bottom:0}
+
+/* ─── RESULTS TABLE ─── */
+.rtable{
+  margin-top:4rem;
+  border:1px solid var(--line);border-radius:3px;overflow:hidden;
+  background:var(--ink2);
+}
+.rhead{
+  display:grid;grid-template-columns:80px 1fr 190px;
+  background:rgba(255,255,255,0.025);border-bottom:1px solid var(--line);
+}
+.rhead span{
+  padding:0.75rem 1.3rem;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:0.62rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--muted);font-weight:500;
+}
+.rrow{
+  display:grid;grid-template-columns:80px 1fr 190px;
+  border-bottom:1px solid var(--line2);align-items:center;
+  transition:background 0.18s;
+}
+.rrow:last-child{border-bottom:none}
+.rrow:hover{background:rgba(255,255,255,0.035)}
+@media(max-width:700px){
+  .rhead{display:none}
+  .rrow{grid-template-columns:72px 1fr;grid-template-rows:auto auto}
+  .r-loc{grid-column:2;padding-top:0;padding-bottom:1rem;font-size:0.74rem}
+}
+.r-pl{padding:1rem 1.3rem;display:flex;align-items:center;justify-content:center}
+.pbadge{
+  font-family:'Bebas Neue',sans-serif;font-size:1.5rem;line-height:1;
+  width:46px;height:46px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+}
+.p1{background:rgba(232,200,74,0.12);color:var(--gold);border:1px solid rgba(232,200,74,0.3)}
+.p2{background:rgba(184,206,218,0.1);color:var(--silver);border:1px solid rgba(184,206,218,0.25)}
+.p3{background:rgba(212,168,112,0.1);color:var(--bronze);border:1px solid rgba(212,168,112,0.25)}
+.px{background:rgba(255,255,255,0.04);color:var(--muted);border:1px solid var(--line)}
+.r-inf{padding:1rem 1.3rem}
+.r-ev{font-size:0.9rem;font-weight:500;color:#fff;margin-bottom:0.3rem;line-height:1.35}
+.r-ct{font-size:0.72rem;letter-spacing:0.05em;color:var(--muted);font-weight:300}
+.rb{
+  display:inline-block;margin-left:0.45rem;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;
+  padding:0.1rem 0.45rem;border-radius:2px;
+  background:rgba(200,16,46,0.14);color:#ff7d8f;
+  border:1px solid rgba(200,16,46,0.26);vertical-align:middle;
+}
+.r-loc{padding:1rem 1.3rem;font-size:0.82rem;font-weight:300;color:var(--muted)}
+
+/* ─── GOALS ─── */
+.goal-g{display:grid;grid-template-columns:1fr 1fr;gap:1.75rem;margin-top:4rem}
+@media(max-width:700px){.goal-g{grid-template-columns:1fr}}
+.gc{
+  border:1px solid var(--line);border-radius:3px;overflow:hidden;
+  background:var(--ink2);
+}
+.gc-h{
+  padding:1rem 1.4rem;border-bottom:1px solid var(--line2);
+  background:rgba(200,16,46,0.06);
+}
+.gc-hl{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--red);font-weight:600;
+}
+.gl{list-style:none;padding:0.4rem 0}
+.gl li{
+  padding:0.85rem 1.4rem;border-bottom:1px solid var(--line2);
+  font-size:0.88rem;font-weight:300;color:rgba(255,255,255,0.76);
+  display:flex;align-items:flex-start;gap:0.75rem;line-height:1.6;
+}
+.gl li:last-child{border-bottom:none}
+.gd{width:4px;height:4px;border-radius:50%;background:var(--red);flex-shrink:0;margin-top:0.55rem}
+
+.gq{
+  margin-top:2.5rem;padding:2.4rem 2.8rem;
+  border-left:3px solid var(--red);
+  background:linear-gradient(135deg,rgba(200,16,46,0.06),rgba(200,16,46,0.02));
+  border-radius:0 3px 3px 0;
+}
+.gq p{
+  font-size:clamp(0.92rem,2vw,1.12rem);font-weight:300;
+  color:rgba(255,255,255,0.82);line-height:1.85;font-style:italic;
+}
+
+/* ─── PARTNER ─── */
+.partner-g{
+  display:grid;grid-template-columns:1.15fr 1fr;gap:5.5rem;
+  margin-top:4rem;align-items:start;
+}
+@media(max-width:900px){.partner-g{grid-template-columns:1fr;gap:3rem}}
+.pt p{font-size:0.95rem;font-weight:300;color:rgba(255,255,255,0.68);line-height:1.92;margin-bottom:1.3rem}
+
+.benefit-group{margin-bottom:2rem}
+.benefit-group:last-child{margin-bottom:0}
+.benefit-title{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:0.62rem;letter-spacing:0.24em;text-transform:uppercase;
+  color:var(--red);font-weight:600;
+  padding-bottom:0.65rem;border-bottom:1px solid var(--line);margin-bottom:0.65rem;
+}
+.benefit-item{
+  display:flex;gap:0.9rem;align-items:flex-start;
+  padding:0.85rem 0;border-bottom:1px solid var(--line2);
+}
+.benefit-item:last-child{border-bottom:none}
+.benefit-icon{
+  width:36px;height:36px;flex-shrink:0;
+  background:rgba(255,255,255,0.04);border:1px solid var(--line);
+  border-radius:3px;display:flex;align-items:center;justify-content:center;
+  font-size:0.9rem;
+}
+.benefit-label{font-size:0.86rem;font-weight:500;color:#fff;margin-bottom:0.22rem}
+.benefit-desc{font-size:0.76rem;font-weight:300;color:var(--muted);line-height:1.65}
+
+/* ─── CONTACT ─── */
+.ct-g{display:grid;grid-template-columns:1.2fr 1fr;gap:4.5rem;margin-top:4rem;align-items:start}
+@media(max-width:900px){.ct-g{grid-template-columns:1fr;gap:3rem}}
+.ct-txt p{font-size:0.95rem;font-weight:300;color:rgba(255,255,255,0.68);line-height:1.92;margin-bottom:1.3rem}
+
+.contact-card{
+  border:1px solid var(--line);border-radius:3px;overflow:hidden;
+  background:var(--ink2);margin-bottom:1.1rem;
+}
+.contact-card:last-child{margin-bottom:0}
+.cc-head{padding:0.9rem 1.3rem;border-bottom:1px solid var(--line2);background:rgba(255,255,255,0.025)}
+.cc-role{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--red);font-weight:600;margin-bottom:0.2rem;
+}
+.cc-name{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:0.08em}
+.cc-body{padding:0.95rem 1.3rem}
+.cc-link{
+  display:flex;align-items:center;gap:0.65rem;
+  color:var(--muted);text-decoration:none;
+  font-size:0.86rem;font-weight:300;margin-bottom:0.55rem;
+  transition:color 0.2s;
+}
+.cc-link:last-child{margin-bottom:0}
+.cc-link:hover{color:#fff}
+.cc-lbl{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--dim);width:30px;flex-shrink:0;font-weight:500;
+}
+
+.cta-box{
+  margin-top:2.2rem;
+  background:linear-gradient(135deg,var(--red),var(--red2));
+  border-radius:3px;padding:2.2rem;text-align:center;
+  position:relative;overflow:hidden;
+}
+.cta-box::before{
+  content:'';position:absolute;top:-40%;right:-20%;
+  width:200px;height:200px;border-radius:50%;
+  background:rgba(255,255,255,0.05);pointer-events:none;
+}
+.cta-box h3{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:0.08em;margin-bottom:0.4rem}
+.cta-box p{font-size:0.86rem;font-weight:300;color:rgba(255,255,255,0.82);margin-bottom:1.5rem}
+.cta-box a{
+  display:inline-block;background:#fff;color:var(--red);
+  padding:0.8rem 2rem;border-radius:2px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:0.8rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;
+  text-decoration:none;transition:background 0.2s;
+}
+.cta-box a:hover{background:var(--snow)}
+
+/* ─── FOOTER ─── */
+footer{
+  padding:2rem 3rem;border-top:1px solid var(--line2);
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem;
+  background:var(--ink);
+}
+.ft-brand{font-family:'Bebas Neue',sans-serif;font-size:0.95rem;letter-spacing:0.15em;color:var(--muted)}
+.ft-copy{font-size:0.7rem;color:var(--dim);letter-spacing:0.06em}
+@media(max-width:720px){footer{padding:1.5rem 1.25rem;flex-direction:column;align-items:flex-start;gap:0.4rem}}
+
+/* ─── INSTAGRAM ─── */
+.insta-link{
+  display:inline-flex;align-items:center;gap:0.6rem;
+  color:var(--muted);text-decoration:none;
+  font-size:0.86rem;font-weight:300;
+  transition:color 0.2s;
+  margin-top:0.55rem;
+}
+.insta-link:hover{color:#fff}
+.insta-icon{
+  width:30px;height:30px;flex-shrink:0;
+  background:linear-gradient(135deg,#f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);
+  border-radius:7px;display:flex;align-items:center;justify-content:center;
+}
+.insta-icon svg{width:16px;height:16px;fill:#fff}
+.ft-insta{
+  display:inline-flex;align-items:center;gap:0.45rem;
+  font-size:0.7rem;color:var(--dim);letter-spacing:0.06em;
+  text-decoration:none;transition:color 0.2s;
+}
+.ft-insta:hover{color:var(--muted)}
+.ft-insta-icon{
+  width:16px;height:16px;flex-shrink:0;
+  background:linear-gradient(135deg,#f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);
+  border-radius:4px;display:flex;align-items:center;justify-content:center;
+}
+.ft-insta-icon svg{width:9px;height:9px;fill:#fff}
+
+/* ─── SECTION DIVIDERS ─── */
+.sec-divider{
+  height:1px;background:linear-gradient(to right,transparent,rgba(200,16,46,0.3) 30%,rgba(200,16,46,0.15) 70%,transparent);
+}
+
+/* ─── TRUST STRIP ─── */
+.trust-strip{
+  padding:2.5rem 0;
+  background:var(--ink3);
+  border-top:1px solid var(--line2);border-bottom:1px solid var(--line2);
+}
+.trust-inner{
+  display:flex;align-items:center;justify-content:center;gap:3.5rem;flex-wrap:wrap;
+}
+.trust-item{
+  display:flex;align-items:center;gap:0.7rem;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:0.72rem;letter-spacing:0.16em;text-transform:uppercase;
+  color:var(--muted);font-weight:500;
+}
+.trust-icon{color:var(--red);font-size:1rem}
+</style>
 </head>
 <body>
-  <div id="root"></div>
-  <script type="module" src="/client/src/main.tsx"></script>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="n-brand"><span class="n-pip"></span>Heikki Piali</a>
+  <div class="n-links">
+    <a href="#ueber">Über mich</a>
+    <a href="#erfolge">Erfolge</a>
+    <a href="#ziele">Ziele</a>
+    <a href="#partner">Partnerschaft</a>
+    <a href="#kontakt" class="n-cta">Partner werden</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-left">
+    <div class="hero-tag"><span class="hero-tag-dot"></span>Sponsoren Dossier · Saison 2026/2027</div>
+    <h1 class="hero-name"><b>Heikki</b><em>Piali</em></h1>
+    <p class="hero-sub">Nachwuchs-Skilangläufer aus Graubünden. NLZ Ost – Nationales Leistungszentrum Ost (Swiss-Ski). Verein Alpina St. Moritz.</p>
+    <div class="hero-btns">
+      <a href="#partner" class="btn-r">Jetzt Partner werden</a>
+      <a href="#erfolge" class="btn-g">Erfolge ansehen</a>
+    </div>
+    <div class="hero-kpi">
+      <div><div class="kpi-v"><em>1.</em></div><div class="kpi-l">Swiss Cup Sprint U20<br>Langis</div></div>
+      <div><div class="kpi-v"><em>1.</em></div><div class="kpi-l">Sprinter-Wertung<br>Gesamtwertung U18</div></div>
+      <div><div class="kpi-v">17</div><div class="kpi-l">Jahre alt<br>Jg. 2008</div></div>
+    </div>
+  </div>
+  <div class="hero-right"><div class="hero-photo"></div></div>
+</div>
+
+<!-- TRUST STRIP -->
+<div class="trust-strip">
+  <div class="w">
+    <div class="trust-inner">
+      <div class="trust-item"><span class="trust-icon">▲</span>NLZ Ost – Swiss-Ski</div>
+      <div class="trust-item"><span class="trust-icon">▲</span>Alpina St. Moritz</div>
+      <div class="trust-item"><span class="trust-icon">▲</span>BKW Swiss Cup</div>
+      <div class="trust-item"><span class="trust-icon">▲</span>Schweizer Meisterschaften</div>
+    </div>
+  </div>
+</div>
+
+<div class="sec-divider"></div>
+
+<!-- ÜBER MICH -->
+<section class="sec" id="ueber">
+  <div class="w">
+    <div class="eyebrow"><div class="eyebrow-bar"></div><span class="eyebrow-txt">Steckbrief &amp; Über mich</span></div>
+    <h2 class="stitle">Leidenschaft.<br>Disziplin. Leistung.</h2>
+    <div class="about-g">
+      <div class="stat-card">
+        <div class="stat-card-head"><h3>Steckbrief</h3></div>
+        <div class="stat-row"><div class="stat-k">Name</div><div class="stat-v">Heikki Piali</div></div>
+        <div class="stat-row"><div class="stat-k">Geburtsdatum</div><div class="stat-v">18. September 2008</div></div>
+        <div class="stat-row"><div class="stat-k">Wohnort</div><div class="stat-v">Bonaduz</div></div>
+        <div class="stat-row"><div class="stat-k">Ausbildung</div><div class="stat-v">Informatiker EFZ in Ausbildung</div></div>
+        <div class="stat-row"><div class="stat-k">Sportart</div><div class="stat-v">Skilanglauf (Leistungssport)</div></div>
+        <div class="stat-row"><div class="stat-k">Verein</div><div class="stat-v">Alpina St. Moritz</div></div>
+        <div class="stat-row"><div class="stat-k">Kader</div><div class="stat-v">NLZ Ost – Nationales Leistungszentrum Ost (Förderstufe Swiss-Ski)</div></div>
+      </div>
+      <div class="bio">
+        <p>Ich bin in Graubünden aufgewachsen und habe die Berge und den Schnee schon früh als mein zweites Zuhause entdeckt. Was als spielerisches Hobby begann, ist heute mein absoluter Lebensmittelpunkt im Leistungssport. Als Mitglied des Clubs Alpina St. Moritz und des NLZ Ost Kaders (Nationales Leistungszentrum Ost, offizielle Förderstufe Swiss-Ski) investiere ich jährlich hunderte von Trainingsstunden, um mich auf nationaler Ebene mit den Besten zu messen. Mein Weg führt mich dabei über die verschiedensten Loipen der Schweiz, immer mit dem klaren Ziel vor Augen, meine eigenen Grenzen jedes Mal ein Stück weiter nach oben zu verschieben.</p>
+        <p>Meine grosse Spezialität und Leidenschaft ist der Sprint. In dieser Disziplin fühle ich mich zu Hause, weil sie alles von einem Athleten abverlangt: Kraft, technische Präzision und vor allem taktische Cleverness im direkten Duell. Die enorme Explosivität beim Start und der harte Kampf um jede Position bis zum Zielstrich geben mir einen Adrenalinkick, den ich in keiner anderen Disziplin so finde. In diesen kurzen, intensiven Momenten kann ich meine Stärken voll ausspielen und zeigen, dass ich den nötigen Biss habe, um mich auch in hektischen Situationen durchzusetzen.</p>
+        <p>Diese Zielstrebigkeit prägt auch meinen Alltag ausserhalb der Loipe. Als Informatiker EFZ in Ausbildung bin ich es gewohnt, konzentriert zu arbeiten und Lösungen zu finden. Diese mentale Ausdauer übertrage ich eins zu eins auf meinen Sport. Es erfordert enorme Disziplin, nach einem Arbeitstag noch die Ski anzuschnallen oder am Wochenende für Wettkämpfe quer durch das Land zu reisen. Doch genau diese Herausforderung treibt mich an. Ich bin jemand, der anpackt, seine Ziele konsequent verfolgt und bereit ist, die Extrameile zu gehen.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="sec-divider"></div>
+
+<!-- ERFOLGE -->
+<section class="sec sec-alt" id="erfolge">
+  <div class="w">
+    <div class="eyebrow"><div class="eyebrow-bar"></div><span class="eyebrow-txt">Meine Erfolge der letzten Saison</span></div>
+    <h2 class="stitle">Resultate &amp;<br>Platzierungen</h2>
+    <div class="rtable">
+      <div class="rhead">
+        <span>Rang</span>
+        <span>Wettbewerb &amp; Disziplin</span>
+        <span>Kategorie &amp; Ort</span>
+      </div>
+      <div class="rrow">
+        <div class="r-pl"><div class="pbadge p1">1.</div></div>
+        <div class="r-inf">
+          <div class="r-ev">BKW Swiss Cup, Sprint <span class="rb">U20</span></div>
+          <div class="r-ct">Swiss Cup</div>
+        </div>
+        <div class="r-loc">Langis</div>
+      </div>
+      <div class="rrow">
+        <div class="r-pl"><div class="pbadge p1">1.</div></div>
+        <div class="r-inf">
+          <div class="r-ev">BKW Swiss Cup, Sprinter-Wertung Gesamtwertung <span class="rb">Gesamtwertung</span></div>
+          <div class="r-ct">U18</div>
+        </div>
+        <div class="r-loc">Gesamtsaison</div>
+      </div>
+      <div class="rrow">
+        <div class="r-pl"><div class="pbadge p2">2.</div></div>
+        <div class="r-inf">
+          <div class="r-ev">BKW Swiss Cup Final, Sprint <span class="rb">Cup Final</span></div>
+          <div class="r-ct">U18</div>
+        </div>
+        <div class="r-loc">Sils</div>
+      </div>
+      <div class="rrow">
+        <div class="r-pl"><div class="pbadge p3">3.</div></div>
+        <div class="r-inf">
+          <div class="r-ev">BKW Swiss Cup, Sprint</div>
+          <div class="r-ct">U18</div>
+        </div>
+        <div class="r-loc">Campra</div>
+      </div>
+      <div class="rrow">
+        <div class="r-pl"><div class="pbadge p3">3.</div></div>
+        <div class="r-inf">
+          <div class="r-ev">BKW Swiss Cup, Distanzrennen Skating</div>
+          <div class="r-ct">U18</div>
+        </div>
+        <div class="r-loc">Goms (Gommerlauf)</div>
+      </div>
+      <div class="rrow">
+        <div class="r-pl"><div class="pbadge px">4.</div></div>
+        <div class="r-inf">
+          <div class="r-ev">Schweizer Meisterschaften, Sprint <span class="rb">SM</span></div>
+          <div class="r-ct">U18</div>
+        </div>
+        <div class="r-loc">Les Diablerets</div>
+      </div>
+      <div class="rrow">
+        <div class="r-pl"><div class="pbadge px">5.</div></div>
+        <div class="r-inf">
+          <div class="r-ev">BKW Swiss Cup Final, Sprint <span class="rb">Cup Final</span></div>
+          <div class="r-ct">U20</div>
+        </div>
+        <div class="r-loc">Sils</div>
+      </div>
+      <div class="rrow">
+        <div class="r-pl"><div class="pbadge px">6.</div></div>
+        <div class="r-inf">
+          <div class="r-ev">BKW Swiss Cup, Sprinter-Wertung Gesamtwertung <span class="rb">Gesamtwertung</span></div>
+          <div class="r-ct">U20</div>
+        </div>
+        <div class="r-loc">Gesamtsaison</div>
+      </div>
+      <div class="rrow">
+        <div class="r-pl"><div class="pbadge px">8.</div></div>
+        <div class="r-inf">
+          <div class="r-ev">BKW Swiss Cup Final, Sprint <span class="rb">Offene Kat.</span></div>
+          <div class="r-ct">Männer</div>
+        </div>
+        <div class="r-loc">Sils</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="sec-divider"></div>
+
+<!-- ZIELE -->
+<section class="sec" id="ziele">
+  <div class="w">
+    <div class="eyebrow"><div class="eyebrow-bar"></div><span class="eyebrow-txt">Meine Ziele für die Zukunft</span></div>
+    <h2 class="stitle">Klare Vision.<br>Konsequenter Weg.</h2>
+    <div class="goal-g">
+      <div class="gc">
+        <div class="gc-h"><span class="gc-hl">Kurzfristige Ziele · 1–2 Jahre</span></div>
+        <ul class="gl">
+          <li><span class="gd"></span>Qualifikation für das Swiss-Ski C-Kader</li>
+          <li><span class="gd"></span>Regelmässige Top-Platzierungen im Swiss Cup</li>
+          <li><span class="gd"></span>Selektion für die Junioren-Weltmeisterschaften</li>
+        </ul>
+      </div>
+      <div class="gc">
+        <div class="gc-h"><span class="gc-hl">Langfristige Ziele · Profi-Karriere</span></div>
+        <ul class="gl">
+          <li><span class="gd"></span>Etablierung an der nationalen Spitze</li>
+          <li><span class="gd"></span>Teilnahme an internationalen Grossanlässen</li>
+          <li><span class="gd"></span>Leistungssport als Profi ausüben</li>
+        </ul>
+      </div>
+    </div>
+    <div class="gq">
+      <p>Sportlicher Erfolg ist für mich kein Zufall, sondern das Ergebnis von harter Arbeit, Ausdauer und einer klaren Vision. Um meine Träume zu verwirklichen, setze ich mir konsequente Ziele, die mich jeden Tag aufs Neue motivieren. Mit Ihrer Unterstützung als Partner kann ich mich voll auf mein Training und meine Entwicklung konzentrieren, um diese Meilensteine gemeinsam mit Ihnen zu erreichen.</p>
+    </div>
+  </div>
+</section>
+
+<div class="sec-divider"></div>
+
+<!-- PARTNER MEHRWERT -->
+<section class="sec sec-alt" id="partner">
+  <div class="w">
+    <div class="eyebrow"><div class="eyebrow-bar"></div><span class="eyebrow-txt">Ihr Mehrwert als Partner</span></div>
+    <h2 class="stitle">Gemeinsam<br>zum Erfolg.</h2>
+    <div class="partner-g">
+      <div class="pt">
+        <p>Eine Zusammenarbeit mit mir bietet Ihrem Unternehmen eine authentische Plattform im dynamischen Umfeld des nordischen Skisports. Ich biete Ihnen verschiedene Möglichkeiten, Ihre Marke zu präsentieren.</p>
+        <p>Als Partner sind Sie nicht Sponsor im Hintergrund – Sie sind Teil der Erfolgsgeschichte. Mit konkreten Gegenleistungen, echter Sichtbarkeit und der Möglichkeit, Ihre Unternehmenskultur mit Hochleistungssport zu verbinden.</p>
+        <p>Gerne stelle ich Ihnen meine Pläne in einem persönlichen Gespräch genauer vor.</p>
+        <div style="margin-top:2rem"><a href="#kontakt" class="btn-r">Sponsoring-Gespräch anfragen</a></div>
+      </div>
+      <div>
+        <div class="benefit-group">
+          <div class="benefit-title">Werbepräsenz auf meiner Ausrüstung</div>
+          <div class="benefit-item">
+            <div class="benefit-icon">🎿</div>
+            <div><div class="benefit-label">Kopfsponsor</div><div class="benefit-desc">Platzierung auf der Stirn der Mütze – Top-Position bei Fotos und Interviews.</div></div>
+          </div>
+          <div class="benefit-item">
+            <div class="benefit-icon">🎿</div>
+            <div><div class="benefit-label">Seiten-Kopfsponsor</div><div class="benefit-desc">Platzierung seitlich an der Mütze – Top-Position bei Fotos und Interviews.</div></div>
+          </div>
+          <div class="benefit-item">
+            <div class="benefit-icon">💧</div>
+            <div><div class="benefit-label">Trinkgurt</div><div class="benefit-desc">Sichtbarkeit bei jedem Training und im Wettkampfbereich.</div></div>
+          </div>
+        </div>
+        <div class="benefit-group">
+          <div class="benefit-title">Kommunikation und Werberechte</div>
+          <div class="benefit-item">
+            <div class="benefit-icon">📸</div>
+            <div><div class="benefit-label">Bildrechte</div><div class="benefit-desc">Nutzung meines Gesichts und Bildmaterials für Ihre interne und externe Unternehmenskommunikation.</div></div>
+          </div>
+          <div class="benefit-item">
+            <div class="benefit-icon">📱</div>
+            <div><div class="benefit-label">Social Media</div><div class="benefit-desc">Erwähnungen und Verlinkungen auf meinen Kanälen bei Trainings- und Wettkampfberichten.</div></div>
+          </div>
+        </div>
+        <div class="benefit-group">
+          <div class="benefit-title">Events und Networking</div>
+          <div class="benefit-item">
+            <div class="benefit-icon">🤝</div>
+            <div><div class="benefit-label">Firmen-Events</div><div class="benefit-desc">Ich stehe als Gast oder für kurze Auftritte zur Verfügung.</div></div>
+          </div>
+          <div class="benefit-item">
+            <div class="benefit-icon">⛷️</div>
+            <div><div class="benefit-label">Gemeinsames Training</div><div class="benefit-desc">Langlauf-Event für Ihre Kunden oder Mitarbeitenden – mit Technik-Tipps und Einblicken in den Profisport.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="sec-divider"></div>
+
+<!-- KONTAKT -->
+<section class="sec" id="kontakt">
+  <div class="w">
+    <div class="eyebrow"><div class="eyebrow-bar"></div><span class="eyebrow-txt">Kontakt</span></div>
+    <h2 class="stitle">Lassen Sie uns<br>gemeinsam starten.</h2>
+    <div class="ct-g">
+      <div>
+        <div class="ct-txt">
+          <p>Ich würde mich freuen, Ihnen meine Pläne in einem persönlichen Gespräch genauer vorzustellen. Mein Management steht Ihnen jederzeit für Fragen, individuelle Sponsoring-Vereinbarungen und erste Gespräche zur Verfügung.</p>
+          <p>Kein Formular, keine Warteschleife – eine direkte Nachricht oder ein kurzer Anruf genügt.</p>
+        </div>
+        <div class="cta-box">
+          <h3>Jetzt Partner werden</h3>
+          <p>Schreiben Sie uns direkt – wir melden uns schnellstmöglich.</p>
+          <a href="mailto:hpiali.management@gmail.com">Sponsoring-Anfrage senden ↗</a>
+        </div>
+      </div>
+      <div>
+        <div class="contact-card">
+          <div class="cc-head">
+            <div class="cc-role">Management</div>
+            <div class="cc-name">Laurin Bieler</div>
+          </div>
+          <div class="cc-body">
+            <a href="tel:+41787417333" class="cc-link"><span class="cc-lbl">Tel</span>+41 78 741 73 33</a>
+            <a href="mailto:hpiali.management@gmail.com" class="cc-link"><span class="cc-lbl">Mail</span>hpiali.management@gmail.com</a>
+          </div>
+        </div>
+        <div class="contact-card">
+          <div class="cc-head">
+            <div class="cc-role">Athlet</div>
+            <div class="cc-name">Heikki Piali</div>
+          </div>
+          <div class="cc-body">
+            <a href="tel:+41798602618" class="cc-link"><span class="cc-lbl">Tel</span>+41 79 860 26 18</a>
+            <div class="cc-link" style="cursor:default"><span class="cc-lbl">Ort</span>Bonaduz, Graubünden</div>
+            <a href="https://www.instagram.com/heikki.piali/" target="_blank" rel="noopener" class="insta-link">
+              <span class="insta-icon"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></span>
+              @heikki.piali
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="ft-brand">Heikki Piali · Alpina St. Moritz · NLZ Ost Swiss-Ski</div>
+  <a href="https://www.instagram.com/heikki.piali/" target="_blank" rel="noopener" class="ft-insta">
+    <span class="ft-insta-icon"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></span>
+    @heikki.piali
+  </a>
+  <div class="ft-copy">Sponsoren Dossier Saison 2026/2027 · hpiali.management@gmail.com</div>
+</footer>
+
 </body>
 </html>
